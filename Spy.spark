@@ -1,0 +1,44 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, count, avg
+
+# Step 1: Initialize PySpark Session
+spark = SparkSession.builder \
+    .appName("Big Data Analysis") \
+    .config("spark.some.config.option", "some-value") \
+    .getOrCreate()
+
+# Step 2: Load the Dataset
+# Replace 'large_dataset.csv' with the path to your large dataset
+data_path = "large_dataset.csv"
+df = spark.read.csv(data_path, header=True, inferSchema=True)
+
+# Step 3: Inspect the Data
+print("Schema of the dataset:")
+df.printSchema()
+
+print("Sample data:")
+df.show(n=5)
+
+# Step 4: Data Cleaning
+# Remove rows with null values
+df_cleaned = df.dropna()
+
+# Step 5: Data Transformation
+# Example: Filter rows where a column value meets a condition
+filtered_df = df_cleaned.filter(col("column_name") > 100)
+
+# Step 6: Perform Aggregations
+# Example: Group by a categorical column and calculate the average of a numerical column
+aggregated_df = filtered_df.groupBy("category_column").agg(avg("numeric_column").alias("average_value"))
+
+# Step 7: Show Results
+print("Aggregated data:")
+aggregated_df.show()
+
+# Step 8: Save Results
+# Save the processed data to a file
+output_path = "output/processed_data"
+aggregated_df.write.csv(output_path, header=True)
+
+# Step 9: Stop Spark Session
+spark.stop()
